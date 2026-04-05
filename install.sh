@@ -7,7 +7,7 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 ARCHIVE="rdns_project.tar.gz"
-EXPECTED_MD5="ad2885b61eb040a4bcc5c58079b0b43f"
+EXPECTED_MD5="4f6fb0d38104e87b9506072f3b08811d"
 INSTALL_DIR="rdns"
 BINARY="rdns_master"
 
