@@ -1,0 +1,4 @@
+rdns/database/*.db
+rdns/database/*.json
+rdns/database/*.token
+rdns/tmp/*
