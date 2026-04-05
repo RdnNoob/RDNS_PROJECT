@@ -1,44 +1,34 @@
 #!/bin/bash
-
-# --- KONFIGURASI WARNA ---
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
+set -e
+RED='\033[0;31m'
+GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BLUE='\033[0;34m'
 NC='\033[0m'
 
-echo -e "${PURPLE}==========================================${NC}"
-echo -e "${CYAN}      RDNS V2.9 PRO AUTO-INSTALLER       ${NC}"
-echo -e "${PURPLE}==========================================${NC}"
+ARCHIVE="rdns_project.tar.gz"
+EXPECTED_MD5="ad2885b61eb040a4bcc5c58079b0b43f"
+INSTALL_DIR="rdns"
+BINARY="rdns_master"
 
-# 1. Deteksi Package Manager
-if [ -d "/data/data/com.termux/files/usr/bin" ]; then
-    PM="pkg"
-else
-    PM="sudo apt-get"
-fi
+detect_env(){
+  if [ -d "/data/data/com.termux/files/usr/bin" ]; then
+    ENV="termux"
+    echo -e "${CYAN}[*] Environment: Termux${NC}"
+  elif command -v apt-get &>/dev/null; then
+    ENV="debian"
+    echo -e "${CYAN}[*] Environment: Debian/Ubuntu${NC}"
+  elif command -v yum &>/dev/null; then
+    ENV="redhat"
+    echo -e "${CYAN}[*] Environment: RedHat/CentOS${NC}"
+  else
+    ENV="other"
+    echo -e "${YELLOW}[*] Environment: Unknown${NC}"
+  fi
+}
 
-# 2. Update & Install Dependensi
-echo -e "${YELLOW}[*] Checking dependencies...${NC}"
-$PM update -y
-$PM install golang openssh git curl -y
-
-# 3. Setup Go Module
-echo -e "${YELLOW}[*] Setting up Go environment...${NC}"
-if [ ! -f "go.mod" ]; then
-    go mod init rdns_suite
-fi
-go mod tidy
-
-# 4. Build Binary
-echo -e "${YELLOW}[*] Compiling RDNS Master Engine...${NC}"
-go build -o rdns_master main.go ui.go
-
-if [ $? -eq 0 ]; then
-    chmod +x rdns_master
-    echo -e "${PURPLE}==========================================${NC}"
-    echo -e "${CYAN}[+] INSTALASI BERHASIL!${NC}"
-    echo -e "${YELLOW}[!] Jalankan dengan: ./rdns_master${NC}"
-    echo -e "${PURPLE}==========================================${NC}"
-else
-    echo -e "\033[0;31m[-] Build failed. Pastikan main.go dan ui.go ada di folder ini.\033[0m"
-fi
+install_pkg(){
+  local P=$1 C=${2:-$1}
+  command -v "$C" &>/dev/null && { echo -e "${GREEN}[+] $P sudah ada${NC}"; return; }
+  echo -e "${YELLOW}[*] Install $P...${NC}"
